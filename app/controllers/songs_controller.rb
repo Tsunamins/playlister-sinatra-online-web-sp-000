@@ -2,52 +2,87 @@
 class SongsController < ApplicationController 
  #register Sinatra::Flash
  
+  enable :sessions
  
 
-    get '/songs' do
+  get '/songs' do
     @songs = Song.all
-    erb :'songs/index'
+    erb :'/songs/index'
   end
 
   get '/songs/new' do
-    erb :'songs/new'
+    erb :'/songs/new'
   end
-  
-  get '/songs/:slug' do
-   @song = Song.find_by_slug(params[:slug])
-   erb :'songs/show'
- end
 
   post '/songs' do
-    @song = Song.create({name: params[:name]})
-    @song.artist = Artist.find_or_create_by(name: params[:artist_name])
-    @song.genres << params[:genres].collect {|g| Genre.find(g)}
+    @song = Song.new(name: params["Name"])
+    @song.artist = Artist.find_or_create_by(name: params["Artist Name"])
+    @song.genre_ids = params[:genres]
     @song.save
 
     flash[:message] = "Successfully created song."
-    redirect to "songs/show"
+    redirect "/songs/#{@song.slug}"
   end
 
   get '/songs/:slug/edit' do
     @song = Song.find_by_slug(params[:slug])
-    erb :'songs/edit'
+    erb :'/songs/edit'
   end
 
   get '/songs/:slug' do
     @song = Song.find_by_slug(params[:slug])
-    erb :'songs/show'
+    erb :'/songs/show'
   end
 
   patch '/songs/:slug' do
     @song = Song.find_by_slug(params[:slug])
-   
-   @song.update(params[:song])
+    @song.artist = Artist.find_or_create_by(name: params["Artist Name"])
+    @song.genre_ids = params[:genres]
+    @song.save
 
-   @song.artist = Artist.find_or_create_by(name: params[:artist][:name])
-   @song.save
-
-   erb :'songs/show'
+    flash[:message] = "Successfully updated song."
+    redirect "/songs/#{@song.slug}"
   end
+end
+# get '/songs' do
+#     @songs = Song.all
+#     erb :'songs/index'
+#   end
+
+#   get '/songs/new' do
+#     erb :'songs/new'
+#   end
+  
+#   get '/songs/:slug' do
+#   @song = Song.find_by_slug(params[:slug])
+#   erb :'songs/show'
+# end
+
+#   post '/songs' do
+#     @song = Song.create({name: params[:name]})
+#     @song.artist = Artist.find_or_create_by(name: params[:artist_name])
+#     @song.genres << params[:genres].collect {|g| Genre.find(g)}
+#     @song.save
+
+#     flash[:message] = "Successfully created song."
+#     redirect to "songs/show"
+#   end
+
+#   get '/songs/:slug/edit' do
+#     @song = Song.find_by_slug(params[:slug])
+#     erb :'songs/edit'
+#   end
+
+#   patch '/songs/:slug' do
+#     @song = Song.find_by_slug(params[:slug])
+   
+#   @song.update(params[:song])
+
+#   @song.artist = Artist.find_or_create_by(name: params[:artist][:name])
+#   @song.save
+
+#   erb :'songs/show'
+#   end
   
  
-end
+# end
